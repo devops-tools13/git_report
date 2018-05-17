@@ -1,0 +1,41 @@
+from requests.auth import HTTPBasicAuth
+import requests
+
+user = 'name'
+token = 'key'
+ghUrl = 'https://github.url/api/v3/'
+
+# List the organisations
+baseUrl = ghUrl + "organizations?page{0}&per_page=500"
+response = requests.get(baseUrl, auth=HTTPBasicAuth(user, token))
+assert response.status_code is 200
+data = response.json()
+
+print( "List Users")
+for key in data:
+    #print('Organisation Name: {}'.format(key['login']))
+    # Get the users
+    userUrl = ghUrl + 'orgs/' + key['login'] + '/members' + "?page{0}&per_page=500"
+    userResponse = requests.get(userUrl, auth=HTTPBasicAuth(user, token))
+    userData = userResponse.json()
+    for userKey in userData:
+        print('\t{}, \tUser, {}'.format(key['login'],userKey['login']))
+
+
+print( "List Admins")
+for key in data:
+    #print('Organisation Name: {}'.format(key['login']))
+    # Get the users
+    userAdminUrl = ghUrl + 'orgs/' + key['login'] + '/members?role=admin'
+    userAdminResponse = requests.get(userAdminUrl, auth=HTTPBasicAuth(user, token))
+    userAdminData = userAdminResponse.json()
+
+    userEmailUrl = ghUrl + 'user/' + key['login'] + '/members?role=admin'
+
+    for userKey in userAdminData:
+        print('\t{}, \tAdmin, {}'.format(key['login'],userKey['login']))
+
+
+
+
+print("exiting")
